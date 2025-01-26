@@ -7,9 +7,10 @@ import uuid
 import logging
 import shutil
 from datetime import datetime, timedelta
+import platform
 
 app = Flask(__name__, static_folder='../frontend')
-CORS(app, resources={r"/api/*": {"origins": ["你的前端域名", "http://localhost:3000"]}})
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 UPLOAD_FOLDER = tempfile.gettempdir()
 ALLOWED_EXTENSIONS = {'txt', 'epub', 'mobi', 'azw3'}
@@ -20,11 +21,25 @@ logger = logging.getLogger(__name__)
 
 # Calibre 工具路径
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CALIBRE_PATH = '/usr/bin/ebook-convert'  # Linux 路径
+
+if platform.system() == 'Windows':
+    # Windows 路径，用于本地开发
+    CALIBRE_PATH = r'D:\小工具\在线转换\Calibre2\ebook-convert.exe'  # 替换为你的本地路径
+else:
+    # Linux 路径，用于 PythonAnywhere
+    CALIBRE_PATH = '/usr/bin/ebook-convert'
 
 # 检查转换工具是否存在
 if not os.path.exists(CALIBRE_PATH):
-    raise FileNotFoundError(f"Calibre 转换工具不存在: {CALIBRE_PATH}")
+    logger.warning(f"Calibre 转换工具不存在于 {CALIBRE_PATH}，尝试安装...")
+    if platform.system() != 'Windows':
+        try:
+            # 在 Linux 上尝试安装 Calibre
+            subprocess.run(['sudo', 'apt-get', 'update'], check=True)
+            subprocess.run(['sudo', 'apt-get', 'install', '-y', 'calibre'], check=True)
+        except subprocess.CalledProcessError as e:
+            logger.error(f"安装 Calibre 失败: {e}")
+            raise
 
 # 存储转换后的文件信息
 converted_files = {}
