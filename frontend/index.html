@@ -189,6 +189,28 @@
             color: #cccccc;
             line-height: 1.6;
         }
+
+        .upload-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #8b7fba;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .upload-button:hover {
+            background-color: #a596e3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .upload-button:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -200,7 +222,8 @@
         
         <div class="upload-area" id="dropZone">
             <input type="file" id="fileInput" accept=".txt,.epub,.mobi,.azw3">
-            <p>拖拽文件到此处或点击选择文件</p>
+            <label for="fileInput" class="upload-button">选择文件</label>
+            <p>或拖拽文件到此处</p>
             <p>支持的格式：TXT, EPUB, MOBI, AZW3</p>
         </div>
         
