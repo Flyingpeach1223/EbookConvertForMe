@@ -12,17 +12,20 @@ RUN apt-get update && apt-get install -y \
 # 设置工作目录
 WORKDIR /app
 
-# 复制整个项目
-COPY . .
+# 复制 requirements.txt
+COPY backend/requirements.txt requirements.txt
 
 # 安装 Python 依赖
-RUN pip install -r backend/requirements.txt
+RUN pip install -r requirements.txt
 
-# 安装 Calibre
-RUN wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sh /dev/stdin
+# 复制应用代码
+COPY . .
+
+# 安装 Calibre（使用非交互模式）
+RUN wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py | python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
 
 # 暴露端口
-EXPOSE 5001
+EXPOSE 3000
 
 # 启动命令
 CMD ["python", "backend/app.py"] 
