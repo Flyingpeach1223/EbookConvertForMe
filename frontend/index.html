@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>电子书格式转换</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .title-container {
+            text-align: center;
+            margin-bottom: 40px;
+            background-color: #8b7fba;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(139, 127, 186, 0.2);
+        }
+
+        h1 {
+            margin: 0;
+            font-weight: 300;
+            font-size: 2.5em;
+            letter-spacing: 2px;
+            color: #ffffff;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2em;
+            margin-top: 10px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .upload-area {
+            border: 2px dashed #8b7fba;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 12px;
+            background-color: #2a2a2a;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #a596e3;
+            background-color: #2d2d2d;
+        }
+
+        .file-info {
+            margin-top: 30px;
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .convert-button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background-color: #8b7fba;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .convert-button:hover {
+            background-color: #a596e3;
+        }
+
+        .convert-button:disabled {
+            background-color: #4a4a4a;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            position: relative;
+            width: 100%;
+            height: 10px;
+            background-color: #2a2a2a;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #8b7fba;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            font-size: 12px;
+            z-index: 1;
+        }
+
+        .converted-files {
+            margin-top: 30px;
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .converted-file {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .converted-file:last-child {
+            border-bottom: none;
+        }
+
+        .download-button {
+            padding: 8px 20px;
+            background-color: #8b7fba;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .download-button:hover {
+            background-color: #a596e3;
+        }
+
+        .format-selection {
+            margin: 20px 0;
+        }
+
+        .target-format-select {
+            width: 100%;
+            padding: 10px;
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .target-format-select:focus {
+            outline: none;
+            border-color: #8b7fba;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-area label {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #8b7fba;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .upload-area label:hover {
+            background-color: #a596e3;
+        }
+
+        p {
+            color: #cccccc;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title-container">
+            <h1>电子书格式转换</h1>
+            <div class="subtitle">Convert</div>
+        </div>
+        
+        <div class="upload-area" id="dropZone">
+            <input type="file" id="fileInput" accept=".txt,.epub,.mobi,.azw3">
+            <p>拖拽文件到此处或点击选择文件</p>
+            <p>支持的格式：TXT, EPUB, MOBI, AZW3</p>
+        </div>
+        
+        <div id="fileInfo" class="file-info" style="display: none;">
+            <h3>文件信息</h3>
+            <p id="fileName"></p>
+            <p id="fileSize"></p>
+            <p id="fileType"></p>
+            <div class="format-selection">
+                <label for="targetFormat">选择目标格式：</label>
+                <select id="targetFormat" class="target-format-select"></select>
+            </div>
+            <button id="convertBtn" class="convert-button">开始转换</button>
+            <div id="progressBar" class="progress-bar" style="display: none;">
+                <div id="progressBarFill" class="progress-bar-fill"></div>
+                <div class="progress-text">0%</div>
+            </div>
+        </div>
+
+        <div id="convertedFiles" class="converted-files" style="display: none;">
+            <h3>转换完成的文件</h3>
+            <div id="filesList"></div>
+        </div>
+    </div>
+
+    <script>
+        const ALLOWED_FORMATS = {
+            'txt': ['epub', 'mobi', 'azw3'],
+            'epub': ['txt', 'mobi', 'azw3'],
+            'mobi': ['txt', 'epub', 'azw3'],
+            'azw3': ['txt', 'epub', 'mobi']
+        };
+
+        const API_URL = 'https://Panqi1223.pythonanywhere.com';
+
+        function handleFile(file) {
+            if (!file) return;
+            
+            const extension = file.name.split('.').pop().toLowerCase();
+            if (!Object.keys(ALLOWED_FORMATS).includes(extension)) {
+                alert('不支持的文件格式。请选择以下格式之一：TXT, EPUB, MOBI, AZW3');
+                return;
+            }
+
+            // 显示文件信息
+            document.getElementById('fileName').textContent = `文件名：${file.name}`;
+            document.getElementById('fileSize').textContent = `大小：${formatFileSize(file.size)}`;
+            document.getElementById('fileType').textContent = `格式：${extension.toUpperCase()}`;
+            
+            // 更新可选的目标格式
+            const targetFormat = document.getElementById('targetFormat');
+            targetFormat.innerHTML = ALLOWED_FORMATS[extension]
+                .map(format => `<option value="${format}">${format.toUpperCase()}</option>`)
+                .join('');
+            
+            document.getElementById('fileInfo').style.display = 'block';
+            
+            // 绑定转换按钮事件
+            document.getElementById('convertBtn').onclick = () => convertFile(file);
+        }
+
+        async function convertFile(file) {
+            const convertBtn = document.getElementById('convertBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressBarFill = document.getElementById('progressBarFill');
+            
+            // 添加进度文本元素
+            let progressText = progressBar.querySelector('.progress-text');
+            if (!progressText) {
+                progressText = document.createElement('div');
+                progressText.className = 'progress-text';
+                progressBar.appendChild(progressText);
+            }
+            
+            convertBtn.disabled = true;
+            progressBar.style.display = 'block';
+            progressBarFill.style.width = '0%';
+            progressText.textContent = '0%';
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('targetFormat', document.getElementById('targetFormat').value);
+                
+                // 显示进度
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress = Math.min(progress + 5, 90);  // 最多到90%
+                    progressBarFill.style.width = `${progress}%`;
+                    progressText.textContent = `${progress}%`;
+                }, 200);
+                
+                const response = await fetch(`${API_URL}/api/convert`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                clearInterval(progressInterval);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || '转换失败');
+                }
+                
+                // 转换完成，显示100%
+                progressBarFill.style.width = '100%';
+                progressText.textContent = '100%';
+                
+                const result = await response.json();
+                
+                // 添加到转换完成列表
+                const filesList = document.getElementById('filesList');
+                const convertedFiles = document.getElementById('convertedFiles');
+                
+                const convertedItem = document.createElement('div');
+                convertedItem.className = 'converted-file';
+                convertedItem.innerHTML = `
+                    <div>
+                        <strong>${result.originalName}</strong> -> 
+                        <strong>${result.convertedName}</strong>
+                    </div>
+                    <button class="download-button" onclick="downloadFile('${result.fileId}')">
+                        下载
+                    </button>
+                `;
+                
+                filesList.appendChild(convertedItem);
+                convertedFiles.style.display = 'block';
+                
+            } catch (error) {
+                alert('转换失败：' + error.message);
+            } finally {
+                convertBtn.disabled = false;
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    progressBarFill.style.width = '0%';
+                    progressText.textContent = '';
+                }, 1000);
+            }
+        }
+
+        async function downloadFile(fileId) {
+            try {
+                console.log('开始下载，fileId:', fileId);
+                
+                // 直接在新窗口打开下载链接
+                window.open(`${API_URL}/api/download/${fileId}`, '_blank');
+                
+            } catch (error) {
+                console.error('下载错误:', error);
+                alert('下载失败：' + error.message);
+            }
+        }
+
+        // 事件处理
+        dropZone.ondragover = (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#4CAF50';
+        };
+
+        dropZone.ondragleave = () => {
+            dropZone.style.borderColor = '#ccc';
+        };
+
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#ccc';
+            handleFile(e.dataTransfer.files[0]);
+        };
+
+        fileInput.onchange = (e) => {
+            handleFile(e.target.files[0]);
+        };
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,6 @@
+﻿Calibre2/
+venv/
+__pycache__/
+*.pyc
+.vscode/
+*.dll
