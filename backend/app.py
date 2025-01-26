@@ -10,12 +10,7 @@ from datetime import datetime, timedelta
 import platform
 
 app = Flask(__name__, static_folder='../frontend')
-CORS(app, resources={r"/api/*": {"origins": [
-    "http://127.0.0.1:5500",  # 添加这行，允许 Live Server 的地址
-    "http://localhost:5500",   # 添加这行
-    "https://ebook-convert-for-me.vercel.app",
-    "http://localhost:5001"
-]}})
+CORS(app, resources={r"/api/*": {"origins": "*"}})  # 允许所有来源
 
 UPLOAD_FOLDER = tempfile.gettempdir()
 ALLOWED_EXTENSIONS = {'txt', 'epub', 'mobi', 'azw3'}
@@ -199,4 +194,5 @@ def download_file(file_id):
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001) 
+    port = int(os.environ.get('PORT', 5001))
+    app.run(host='0.0.0.0', port=port, debug=False)  # 生产环境关闭 debug 
