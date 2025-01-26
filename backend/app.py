@@ -11,8 +11,10 @@ import platform
 
 app = Flask(__name__, static_folder='../frontend')
 CORS(app, resources={r"/api/*": {"origins": [
-    "https://ebook-convert-for-me.vercel.app",  # Vercel 域名
-    "http://localhost:5001"  # 本地开发用
+    "http://127.0.0.1:5500",  # 添加这行，允许 Live Server 的地址
+    "http://localhost:5500",   # 添加这行
+    "https://ebook-convert-for-me.vercel.app",
+    "http://localhost:5001"
 ]}})
 
 UPLOAD_FOLDER = tempfile.gettempdir()
